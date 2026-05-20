@@ -1,0 +1,16 @@
+<footer>
+  <div class="container">
+    <p>© 2025 MeleeMods — La mayor plataforma de mods para Super Smash Bros. Melee</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.flash').forEach(el => {
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.5s';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 500);
+  }, 4000);
+});
+</script>
+</body>
+</html>

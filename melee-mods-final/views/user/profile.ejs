@@ -1,0 +1,65 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="profile-header">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar">
+        <% if (profileUser.avatar_url) { %>
+          <img src="<%= profileUser.avatar_url %>" alt="<%= profileUser.username %>">
+        <% } else { %>
+          <img src="/img/default-avatar.svg" alt="avatar">
+        <% } %>
+      </div>
+    </div>
+    <div class="profile-info">
+      <h1><%= profileUser.username %></h1>
+      <% if (profileUser.bio) { %><p class="bio"><%= profileUser.bio %></p><% } %>
+      <div class="profile-socials">
+        <% if (profileUser.social_twitter) { %>
+          <a href="https://twitter.com/<%= profileUser.social_twitter %>" target="_blank" class="social-link">🐦 @<%= profileUser.social_twitter %></a>
+        <% } %>
+        <% if (profileUser.social_youtube) { %>
+          <a href="<%= profileUser.social_youtube %>" target="_blank" class="social-link">▶️ YouTube</a>
+        <% } %>
+        <% if (profileUser.social_twitch) { %>
+          <a href="https://twitch.tv/<%= profileUser.social_twitch %>" target="_blank" class="social-link">🟣 Twitch</a>
+        <% } %>
+        <% if (profileUser.social_discord) { %>
+          <span class="social-link">💬 <%= profileUser.social_discord %></span>
+        <% } %>
+      </div>
+      <p class="text-muted" style="font-size:0.8rem;margin-top:0.5rem">
+        Miembro desde <%= new Date(profileUser.created_at).toLocaleDateString('es-ES') %>
+      </p>
+      <% if (user && user.username === profileUser.username) { %>
+        <a href="/user/edit" class="btn btn-ghost btn-sm mt-2">Editar perfil</a>
+      <% } %>
+    </div>
+  </div>
+
+  <h2 style="font-family:var(--font-cond);font-size:1.3rem;margin-bottom:1rem">
+    Mods de <%= profileUser.username %> (<%= mods.length %>)
+  </h2>
+  <% if (mods.length===0) { %>
+    <div class="empty-state"><div class="big">🎮</div><p>Este usuario aún no ha subido mods.</p></div>
+  <% } else { %>
+    <div class="mods-grid">
+      <% mods.forEach(mod => { %>
+        <a href="/mods/<%= mod.id %>" class="mod-card">
+          <div class="mod-card-thumb">
+            <% if (mod.cover) { %><img src="<%= mod.cover %>" alt="<%= mod.title %>">
+            <% } else { %><div class="no-thumb">🎮</div><% } %>
+          </div>
+          <div class="mod-card-body">
+            <span class="mod-card-cat"><%= mod.category_name %></span>
+            <span class="mod-card-title"><%= mod.title %></span>
+            <div class="mod-card-meta">
+              <span class="star">★</span><span><%= mod.avg_score||'—' %></span>
+              <span class="sep">·</span><span>⬇ <%= mod.download_count %></span>
+            </div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+<%- include('../partials/footer') %>

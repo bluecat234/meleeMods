@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="page-header"><h1>Gestión de usuarios</h1></div>
+  <div class="admin-layout">
+    <nav class="admin-nav">
+      <a href="/admin">📊 Dashboard</a>
+      <a href="/admin/mods">🎮 Mods</a>
+      <a href="/admin/users" class="active">👥 Usuarios</a>
+      <a href="/">← Volver</a>
+    </nav>
+    <div>
+      <table class="admin-table">
+        <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Verificado</th><th>Registro</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <% users.forEach(u => { %>
+            <tr>
+              <td><a href="/user/<%= u.username %>" class="text-blue"><%= u.username %></a></td>
+              <td><%= u.email %></td>
+              <td>
+                <% if (u.role==='admin') { %><span class="badge badge-blue">Admin</span>
+                <% } else { %><span class="badge badge-green">User</span><% } %>
+              </td>
+              <td><%= u.is_verified ? '✅' : '❌' %></td>
+              <td><%= new Date(u.created_at).toLocaleDateString('es-ES') %></td>
+              <td style="display:flex;gap:4px;flex-wrap:wrap">
+                <form action="/admin/users/<%= u.id %>/role" method="POST">
+                  <select name="role" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:0.8rem">
+                    <option value="user"  <%= u.role==='user' ?'selected':'' %>>User</option>
+                    <option value="admin" <%= u.role==='admin'?'selected':'' %>>Admin</option>
+                  </select>
+                  <button class="btn btn-ghost btn-sm">Aplicar</button>
+                </form>
+                <% if (u.role !== 'admin') { %>
+                  <form action="/admin/users/<%= u.id %>/delete" method="POST"
+                        onsubmit="return confirm('¿Eliminar usuario?')">
+                    <button class="btn btn-danger btn-sm">Eliminar</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

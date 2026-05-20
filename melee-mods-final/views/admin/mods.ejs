@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="page-header"><h1>Gestión de mods</h1></div>
+  <div class="admin-layout">
+    <nav class="admin-nav">
+      <a href="/admin">📊 Dashboard</a>
+      <a href="/admin/mods" class="active">🎮 Mods</a>
+      <a href="/admin/users">👥 Usuarios</a>
+      <a href="/">← Volver</a>
+    </nav>
+    <div>
+      <table class="admin-table">
+        <thead><tr><th>Título</th><th>Autor</th><th>Categoría</th><th>⬇</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <% mods.forEach(m => { %>
+            <tr>
+              <td><a href="/mods/<%= m.id %>" class="text-blue"><%= m.title %></a></td>
+              <td><%= m.author %></td>
+              <td><%= m.category_name %></td>
+              <td><%= m.download_count %></td>
+              <td>
+                <% if (m.status==='published') { %><span class="badge badge-green">Publicado</span>
+                <% } else if (m.status==='banned') { %><span class="badge badge-red">Baneado</span>
+                <% } else { %><span class="badge badge-yellow">Borrador</span><% } %>
+              </td>
+              <td style="display:flex;gap:4px">
+                <% if (m.status!=='published') { %>
+                  <form action="/admin/mods/<%= m.id %>/publish" method="POST">
+                    <button class="btn btn-primary btn-sm">Publicar</button>
+                  </form>
+                <% } %>
+                <% if (m.status!=='banned') { %>
+                  <form action="/admin/mods/<%= m.id %>/ban" method="POST"
+                        onsubmit="return confirm('¿Banear este mod?')">
+                    <button class="btn btn-danger btn-sm">Banear</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,10 @@
+<%- include('./partials/header') %>
+<div class="container">
+  <div class="empty-state" style="padding:6rem 0">
+    <div class="big">⚠️</div>
+    <h2 style="font-family:var(--font-head);font-size:2rem;margin-bottom:0.5rem">Oops</h2>
+    <p><%= message || 'Ha ocurrido un error inesperado.' %></p>
+    <a href="/" class="btn btn-primary mt-2">Volver al inicio</a>
+  </div>
+</div>
+<%- include('./partials/footer') %>

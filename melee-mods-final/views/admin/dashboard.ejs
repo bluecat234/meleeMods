@@ -1,0 +1,43 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="page-header">
+    <h1>Panel de administración</h1>
+    <p>Control total de la plataforma</p>
+  </div>
+  <div class="admin-layout">
+    <nav class="admin-nav">
+      <a href="/admin" class="active">📊 Dashboard</a>
+      <a href="/admin/mods">🎮 Mods</a>
+      <a href="/admin/users">👥 Usuarios</a>
+      <a href="/">← Volver</a>
+    </nav>
+    <div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="num"><%= stats.total_users %></div><div class="lbl">Usuarios</div></div>
+        <div class="stat-card"><div class="num"><%= stats.total_mods %></div><div class="lbl">Mods publicados</div></div>
+        <div class="stat-card"><div class="num"><%= stats.total_downloads %></div><div class="lbl">Descargas totales</div></div>
+        <div class="stat-card"><div class="num"><%= stats.total_comments %></div><div class="lbl">Comentarios</div></div>
+      </div>
+      <h2 style="font-family:var(--font-cond);font-size:1.2rem;margin-bottom:1rem">Mods recientes</h2>
+      <table class="admin-table">
+        <thead><tr><th>Título</th><th>Autor</th><th>Categoría</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody>
+          <% recentMods.forEach(m => { %>
+            <tr>
+              <td><a href="/mods/<%= m.id %>" class="text-blue"><%= m.title %></a></td>
+              <td><%= m.author %></td>
+              <td><%= m.category_name %></td>
+              <td>
+                <% if (m.status==='published') { %><span class="badge badge-green">Publicado</span>
+                <% } else if (m.status==='banned') { %><span class="badge badge-red">Baneado</span>
+                <% } else { %><span class="badge badge-yellow">Borrador</span><% } %>
+              </td>
+              <td><%= new Date(m.created_at).toLocaleDateString('es-ES') %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

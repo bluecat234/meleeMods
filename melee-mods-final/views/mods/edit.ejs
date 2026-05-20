@@ -1,0 +1,165 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="page-header">
+    <h1>Editar mod</h1>
+    <p><a href="/mods/<%= mod.id %>" class="text-blue">← Volver al mod</a></p>
+  </div>
+
+  <form action="/mods/<%= mod.id %>/edit" method="POST" enctype="multipart/form-data" style="max-width:680px">
+
+    <div class="form-group">
+      <label>Título *</label>
+      <input type="text" name="title" required maxlength="255" value="<%= mod.title %>">
+    </div>
+
+    <div class="form-group">
+      <label>Categoría *</label>
+      <select name="category_id" required>
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat.id %>" <%= mod.category_id===cat.id?'selected':'' %>>
+            <%= cat.icon %> <%= cat.name %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Descripción</label>
+      <textarea name="description" rows="5"><%= mod.description||'' %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Versión</label>
+      <input type="text" name="version" value="<%= mod.version %>" maxlength="20">
+    </div>
+
+    <div class="form-group">
+      <label>Tags (separados por comas)</label>
+      <input type="text" name="tags" value="<%= currentTags.map(t=>t.name).join(', ') %>">
+    </div>
+
+    <!-- ── IMÁGENES ACTUALES ── -->
+    <% if (images.length > 0) { %>
+      <div class="form-group">
+        <label>Imágenes actuales — marca la ✕ para eliminar</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <% images.forEach(img => { %>
+            <div style="position:relative">
+              <img src="<%= img.image_url %>"
+                   style="width:100px;height:67px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">
+              <label style="position:absolute;top:3px;right:3px;background:rgba(220,38,38,0.9);
+                            color:#fff;border-radius:50%;width:18px;height:18px;display:flex;
+                            align-items:center;justify-content:center;font-size:11px;cursor:pointer;font-weight:bold"
+                     title="Eliminar imagen">
+                ✕
+                <input type="checkbox" name="delete_images[]" value="<%= img.id %>"
+                       style="display:none"
+                       onchange="this.closest('div[style]').style.opacity=this.checked?'0.3':'1'">
+              </label>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- ── AÑADIR IMÁGENES NUEVAS ── -->
+    <div class="form-group">
+      <label for="img-input">Añadir imágenes nuevas (hasta 10)</label>
+      <div class="upload-zone" id="img-zone"
+           onclick="document.getElementById('img-input').click()" style="cursor:pointer">
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-label" id="img-label">Haz clic aquí para seleccionar imágenes</div>
+        <small>JPG, PNG, WEBP — puedes seleccionar varias a la vez</small>
+      </div>
+      <input type="file" id="img-input" name="images" multiple
+             accept=".jpg,.jpeg,.png,.gif,.webp" style="display:none"
+             onchange="onImagesChange(this)">
+      <div id="img-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div>
+    </div>
+
+    <!-- ── ARCHIVOS .DAT ACTUALES ── -->
+    <% if (files.length > 0) { %>
+      <div class="form-group">
+        <label>Archivos .dat actuales — marca para eliminar</label>
+        <% files.forEach(f => { %>
+          <div class="file-row">
+            <span class="file-name">📄 <%= f.filename %></span>
+            <span class="file-size"><%= (f.file_size/1024/1024).toFixed(2) %> MB</span>
+            <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;color:#f87171;cursor:pointer;white-space:nowrap">
+              <input type="checkbox" name="delete_files[]" value="<%= f.id %>"> Eliminar
+            </label>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <!-- ── AÑADIR .DAT NUEVOS ── -->
+    <div class="form-group">
+      <label for="dat-input">Añadir archivos .dat nuevos — puedes seleccionar varios a la vez</label>
+      <div class="upload-zone" id="dat-zone"
+           onclick="document.getElementById('dat-input').click()" style="cursor:pointer">
+        <div class="upload-icon">📦</div>
+        <div class="upload-label" id="dat-label">Haz clic aquí para seleccionar archivos .dat</div>
+        <small>Solo archivos .dat — máx. 200 MB cada uno</small>
+      </div>
+      <input type="file" id="dat-input" name="modfile" multiple accept=".dat"
+             style="display:none" onchange="onDatChange(this)">
+      <div id="dat-list" style="margin-top:8px;display:flex;flex-direction:column;gap:4px"></div>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;margin-top:1.5rem">
+      <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      <a href="/mods/<%= mod.id %>" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function onImagesChange(input) {
+  var label   = document.getElementById('img-label');
+  var preview = document.getElementById('img-preview');
+  preview.innerHTML = '';
+  if (!input.files || !input.files.length) return;
+  label.textContent = input.files.length + ' imagen(es) seleccionada(s)';
+  Array.from(input.files).forEach(function(f, i) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:inline-block';
+    var img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    img.style.cssText = 'width:100px;height:67px;object-fit:cover;border-radius:6px;border:2px solid var(--blue)';
+    wrap.appendChild(img);
+    preview.appendChild(wrap);
+  });
+}
+
+function onDatChange(input) {
+  var label = document.getElementById('dat-label');
+  var list  = document.getElementById('dat-list');
+  list.innerHTML = '';
+  if (!input.files || !input.files.length) return;
+  label.textContent = input.files.length + ' archivo(s) .dat seleccionado(s)';
+  Array.from(input.files).forEach(function(f) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:0.85rem;';
+    row.innerHTML = '<span>📄</span><span style="flex:1">' + f.name + '</span><span style="color:var(--muted)">' + (f.size/1024/1024).toFixed(2) + ' MB</span>';
+    list.appendChild(row);
+  });
+}
+
+// Drag & drop
+document.getElementById('img-zone').addEventListener('dragover',  function(e){e.preventDefault();this.classList.add('drag-over');});
+document.getElementById('img-zone').addEventListener('dragleave', function(){this.classList.remove('drag-over');});
+document.getElementById('img-zone').addEventListener('drop', function(e){
+  e.preventDefault(); this.classList.remove('drag-over');
+  var inp = document.getElementById('img-input');
+  inp.files = e.dataTransfer.files; onImagesChange(inp);
+});
+document.getElementById('dat-zone').addEventListener('dragover',  function(e){e.preventDefault();this.classList.add('drag-over');});
+document.getElementById('dat-zone').addEventListener('dragleave', function(){this.classList.remove('drag-over');});
+document.getElementById('dat-zone').addEventListener('drop', function(e){
+  e.preventDefault(); this.classList.remove('drag-over');
+  var inp = document.getElementById('dat-input');
+  inp.files = e.dataTransfer.files; onDatChange(inp);
+});
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,24 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="form-card">
+    <h1>Crear cuenta</h1>
+    <form action="/auth/register" method="POST">
+      <div class="form-group">
+        <label>Nombre de usuario</label>
+        <input type="text" name="username" required maxlength="50" placeholder="TuNombre" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" name="password" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Crear cuenta</button>
+    </form>
+    <p class="form-link">¿Ya tienes cuenta? <a href="/auth/login">Inicia sesión</a></p>
+    <p class="form-hint" style="text-align:center;margin-top:0.75rem">Recibirás un correo de verificación al registrarte.</p>
+  </div>
+</div>
+<%- include('../partials/footer') %>

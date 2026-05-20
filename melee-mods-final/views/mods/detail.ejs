@@ -1,0 +1,158 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="mod-detail">
+    <div class="mod-main">
+
+      <!-- Carrusel de imágenes -->
+      <% if (images.length > 0) { %>
+        <div class="carousel">
+          <div class="carousel-main">
+            <% images.forEach((img, i) => { %>
+              <img src="<%= img.image_url %>" alt="<%= mod.title %>" class="<%= i===0?'active':'' %>">
+            <% }) %>
+            <% if (images.length > 1) { %>
+              <button class="carousel-btn prev" onclick="carouselMove(-1)">&#8592;</button>
+              <button class="carousel-btn next" onclick="carouselMove(1)">&#8594;</button>
+            <% } %>
+          </div>
+          <% if (images.length > 1) { %>
+            <div class="carousel-dots">
+              <% images.forEach((_, i) => { %>
+                <div class="carousel-dot <%= i===0?'active':'' %>" onclick="carouselGo(<%= i %>)"></div>
+              <% }) %>
+            </div>
+            <div class="carousel-thumbs">
+              <% images.forEach((img, i) => { %>
+                <div class="carousel-thumb <%= i===0?'active':'' %>" onclick="carouselGo(<%= i %>)">
+                  <img src="<%= img.image_url %>" alt="">
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+
+      <div class="mod-card-cat"><a href="/mods?category=<%= mod.category_slug %>"><%= mod.category_name %></a></div>
+      <h1 class="mod-title"><%= mod.title %></h1>
+      <p class="mod-desc"><%= mod.description || 'Sin descripción.' %></p>
+
+      <% if (tags.length > 0) { %>
+        <div class="mod-tags">
+          <% tags.forEach(t => { %><a href="/mods?search=<%= t.name %>" class="tag">#<%= t.name %></a><% }) %>
+        </div>
+      <% } %>
+
+      <!-- Valoración -->
+      <% if (user) { %>
+        <div class="sidebar-card" style="max-width:300px;margin-bottom:2rem">
+          <h3>Tu valoración</h3>
+          <form action="/mods/<%= mod.id %>/rate" method="POST">
+            <div class="stars">
+              <% for (let i=1;i<=5;i++) { %>
+                <button type="button" class="star-btn <%= userRating>=i?'active':'' %>"
+                        onclick="setRating(<%= i %>)">★</button>
+              <% } %>
+            </div>
+            <input type="hidden" name="score" id="score-input" value="<%= userRating||0 %>">
+            <button type="submit" class="btn btn-primary btn-sm mt-1">Guardar</button>
+          </form>
+        </div>
+      <% } %>
+
+      <!-- Comentarios -->
+      <div class="comments-section" id="comentarios">
+        <h2>Comentarios (<%= comments.length %>)</h2>
+        <% if (user) { %>
+          <form action="/mods/<%= mod.id %>/comment" method="POST" class="comment-form">
+            <textarea name="content" placeholder="Escribe un comentario..." required></textarea>
+            <div><button type="submit" class="btn btn-primary btn-sm">Comentar</button></div>
+          </form>
+        <% } else { %>
+          <p class="text-muted mt-1"><a href="/auth/login" class="text-blue">Inicia sesión</a> para comentar.</p>
+        <% } %>
+        <% if (comments.length===0) { %><p class="text-muted mt-2">Sin comentarios aún.</p><% } %>
+        <% comments.forEach(c => { %>
+          <div class="comment">
+            <div class="comment-avatar">
+              <% if (c.avatar_url) { %><img src="<%= c.avatar_url %>" alt="">
+              <% } else { %><img src="/img/default-avatar.svg" alt=""><% } %>
+            </div>
+            <div class="comment-body">
+              <a href="/user/<%= c.username %>" class="comment-author"><%= c.username %></a>
+              <span class="comment-date"><%= new Date(c.created_at).toLocaleDateString('es-ES') %></span>
+              <p class="comment-text"><%= c.content %></p>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="mod-sidebar">
+      <div class="sidebar-card">
+        <h3>Información</h3>
+        <div class="stat-row"><span class="label">Autor</span>
+          <a href="/user/<%= mod.author %>" class="value text-blue"><%= mod.author %></a></div>
+        <div class="stat-row"><span class="label">Versión</span><span class="value">v<%= mod.version %></span></div>
+        <div class="stat-row"><span class="label">Categoría</span><span class="value"><%= mod.category_name %></span></div>
+        <div class="stat-row"><span class="label">Descargas</span><span class="value">⬇ <%= mod.download_count %></span></div>
+        <div class="stat-row"><span class="label">Nota</span>
+          <span class="value avg-stars"><%= mod.avg_score ? '★ '+mod.avg_score : '—' %>
+            <small class="text-muted">(<%= mod.rating_count %>)</small></span></div>
+        <div class="stat-row"><span class="label">Publicado</span>
+          <span class="value"><%= new Date(mod.created_at).toLocaleDateString('es-ES') %></span></div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Archivos .dat</h3>
+        <% files.forEach(f => { %>
+          <div class="file-row">
+            <span class="file-name">📄 <%= f.filename %></span>
+            <span class="file-size"><%= (f.file_size/1024/1024).toFixed(2) %> MB</span>
+            <a href="/mods/<%= mod.id %>/download/<%= f.id %>" class="btn btn-primary btn-sm">⬇</a>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Acciones del autor / admin -->
+      <% if (user && (user.id === mod.user_id || user.role === 'admin')) { %>
+        <div class="sidebar-card">
+          <h3>Gestionar</h3>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <a href="/mods/<%= mod.id %>/edit" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center">
+              ✏️ Editar mod
+            </a>
+            <form action="/mods/<%= mod.id %>/delete" method="POST"
+                  onsubmit="return confirm('¿Eliminar este mod?')">
+              <button type="submit" class="btn btn-danger btn-sm" style="width:100%">🗑️ Eliminar mod</button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+let current = 0;
+const imgs   = document.querySelectorAll('.carousel-main img');
+const dots   = document.querySelectorAll('.carousel-dot');
+const thumbs = document.querySelectorAll('.carousel-thumb');
+
+function carouselGo(n) {
+  imgs[current].classList.remove('active');
+  dots[current]?.classList.remove('active');
+  thumbs[current]?.classList.remove('active');
+  current = (n + imgs.length) % imgs.length;
+  imgs[current].classList.add('active');
+  dots[current]?.classList.add('active');
+  thumbs[current]?.classList.add('active');
+}
+function carouselMove(dir) { carouselGo(current + dir); }
+
+function setRating(val) {
+  document.getElementById('score-input').value = val;
+  document.querySelectorAll('.star-btn').forEach((btn,i) => btn.classList.toggle('active', i<val));
+}
+</script>
+<%- include('../partials/footer') %>

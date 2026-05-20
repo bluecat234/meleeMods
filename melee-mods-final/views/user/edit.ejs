@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="form-card" style="max-width:560px">
+    <h1>Editar perfil</h1>
+    <form action="/user/edit" method="POST" enctype="multipart/form-data">
+
+      <div class="form-group" style="text-align:center;margin-bottom:1.5rem">
+        <div class="profile-avatar" style="margin:0 auto 1rem;width:80px;height:80px;font-size:2rem">
+          <% if (profileUser.avatar_url) { %>
+            <img src="<%= profileUser.avatar_url %>" alt="avatar" id="avatarPreview">
+          <% } else { %>
+            <img src="/img/default-avatar.svg" alt="avatar" id="avatarPreview">
+          <% } %>
+        </div>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          Cambiar foto
+          <input type="file" name="avatar" accept="image/*" style="display:none"
+                 onchange="previewAvatar(this)">
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>Biografía</label>
+        <textarea name="bio" rows="3" placeholder="Cuéntanos algo sobre ti..."><%= profileUser.bio||'' %></textarea>
+      </div>
+      <div class="form-group">
+        <label>Twitter / X (solo el usuario)</label>
+        <input type="text" name="social_twitter" placeholder="ej: ssbm_player" value="<%= profileUser.social_twitter||'' %>">
+      </div>
+      <div class="form-group">
+        <label>YouTube (URL completa)</label>
+        <input type="url" name="social_youtube" placeholder="https://youtube.com/@tucanal" value="<%= profileUser.social_youtube||'' %>">
+      </div>
+      <div class="form-group">
+        <label>Twitch (solo el usuario)</label>
+        <input type="text" name="social_twitch" placeholder="ej: tucanal" value="<%= profileUser.social_twitch||'' %>">
+      </div>
+      <div class="form-group">
+        <label>Discord (usuario#1234)</label>
+        <input type="text" name="social_discord" placeholder="ej: player#0001" value="<%= profileUser.social_discord||'' %>">
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-top:1.5rem">
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        <a href="/user/<%= user.username %>" class="btn btn-ghost">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function previewAvatar(input) {
+  if (input.files[0]) {
+    document.getElementById('avatarPreview').src = URL.createObjectURL(input.files[0]);
+  }
+}
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,68 @@
+<%- include('../partials/header') %>
+<div class="container">
+  <div class="page-header">
+    <h1><%= currentCategory ? categories.find(c=>c.slug===currentCategory)?.name||'Mods' : 'Todos los mods' %></h1>
+    <p>La mayor colección de mods para Super Smash Bros. Melee</p>
+  </div>
+
+  <div class="filters">
+    <!-- Fila 1: buscador -->
+    <div class="filters-top">
+      <form action="/mods" method="GET">
+        <% if (currentCategory) { %><input type="hidden" name="category" value="<%= currentCategory %>"><% } %>
+        <input type="text" name="search" placeholder="Buscar mods..." value="<%= search %>">
+        <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+      </form>
+    </div>
+
+    <!-- Fila 2: categorías y ordenación separadas -->
+    <div class="filters-row">
+      <div class="filter-pills">
+        <a href="/mods" class="pill <%= !currentCategory?'active':'' %>">Todos</a>
+        <% categories.forEach(cat => { %>
+          <a href="/mods?category=<%= cat.slug %>" class="pill <%= currentCategory===cat.slug?'active':'' %>">
+            <%= cat.icon %> <%= cat.name %>
+          </a>
+        <% }) %>
+      </div>
+
+      <div class="filter-pills">
+        <a href="?<%= currentCategory?'category='+currentCategory+'&':'' %>sort=newest"
+           class="pill <%= sort==='newest'?'active':'' %>">Recientes</a>
+        <a href="?<%= currentCategory?'category='+currentCategory+'&':'' %>sort=downloads"
+           class="pill <%= sort==='downloads'?'active':'' %>">Más descargados</a>
+        <a href="?<%= currentCategory?'category='+currentCategory+'&':'' %>sort=rating"
+           class="pill <%= sort==='rating'?'active':'' %>">Mejor valorados</a>
+      </div>
+    </div>
+  </div>
+
+  <% if (mods.length===0) { %>
+    <div class="empty-state">
+      <div class="big">🕹️</div>
+      <p>No se encontraron mods. ¡Sé el primero en subir uno!</p>
+      <% if (user) { %><a href="/mods/new" class="btn btn-primary mt-2">Subir mod</a><% } %>
+    </div>
+  <% } else { %>
+    <div class="mods-grid">
+      <% mods.forEach(mod => { %>
+        <a href="/mods/<%= mod.id %>" class="mod-card">
+          <div class="mod-card-thumb">
+            <% if (mod.cover) { %><img src="<%= mod.cover %>" alt="<%= mod.title %>">
+            <% } else { %><div class="no-thumb">🎮</div><% } %>
+          </div>
+          <div class="mod-card-body">
+            <span class="mod-card-cat"><%= mod.category_name %></span>
+            <span class="mod-card-title"><%= mod.title %></span>
+            <div class="mod-card-meta">
+              <span class="star">★</span><span><%= mod.avg_score||'—' %></span>
+              <span class="sep">·</span><span>⬇ <%= mod.download_count %></span>
+              <span class="sep">·</span><span><%= mod.author %></span>
+            </div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+<%- include('../partials/footer') %>
